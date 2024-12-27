@@ -1,0 +1,10 @@
+FROM golang:1.22.10 AS build
+WORKDIR /build
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+
+FROM alpine:3.21.0 AS app
+WORKDIR /app
+COPY --from=fabricioveronez/pacote-bin:v1 /pkg/pacote.bin .
+COPY --from=build /build/main .
+CMD [ "./main" ]
